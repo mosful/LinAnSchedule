@@ -1,0 +1,304 @@
+{
+  "people": [
+    {
+      "id": 1,
+      "name": "賴郁凱",
+      "roles": [
+        "管理者",
+        "第一堂工作人員",
+        "第二堂工作人員",
+        "音控手",
+        "投影手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 2,
+      "name": "張綺雅",
+      "roles": [
+        "管理者",
+        "第一堂工作人員",
+        "投影手",
+        "第二堂工作人員"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 3,
+      "name": "林建良",
+      "roles": [
+        "第一堂工作人員",
+        "音控手",
+        "投影手"
+      ],
+      "excludeDates": [],
+      "lineId": "Udf2d8c1008b01acd9cc5e607b77e04a2",
+      "enableLineNotify": true
+    },
+    {
+      "id": 4,
+      "name": "陳俊亨",
+      "roles": [
+        "第一堂工作人員",
+        "音控手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 5,
+      "name": "郭嘉玲",
+      "roles": [
+        "第一堂工作人員",
+        "投影手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 6,
+      "name": "楊周耀",
+      "roles": [
+        "第一堂工作人員",
+        "投影手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 7,
+      "name": "吳冠輝",
+      "roles": [
+        "第一堂工作人員",
+        "音控手",
+        "第二堂工作人員"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 8,
+      "name": "蔡依錠",
+      "roles": [
+        "第二堂工作人員",
+        "音控手",
+        "投影手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 9,
+      "name": "吳潔恩",
+      "roles": [
+        "第二堂工作人員",
+        "投影手",
+        "音控手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 10,
+      "name": "周珈伽",
+      "roles": [
+        "第二堂工作人員",
+        "投影手",
+        "音控手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 11,
+      "name": "馮小鳳",
+      "roles": [
+        "第一堂工作人員",
+        "投影手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 12,
+      "name": "陳信明",
+      "roles": [
+        "第一堂工作人員",
+        "音控手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 13,
+      "name": "謝欣樺",
+      "roles": [
+        "第一堂工作人員",
+        "音控手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    },
+    {
+      "id": 14,
+      "name": "吳裝飾",
+      "roles": [
+        "音控手"
+      ],
+      "excludeDates": [],
+      "lineId": "",
+      "enableLineNotify": false
+    }
+  ],
+  "schedules": [
+    {
+      "id": 1763097336428.0212,
+      "date": "2025-11-02",
+      "isJoint": true,
+      "assignments": {
+        "service1": {
+          "projector": 3,
+          "sound": 9
+        },
+        "service2": {
+          "projector": null,
+          "sound": null
+        }
+      }
+    },
+    {
+      "id": 1763097336428.8167,
+      "date": "2025-11-09",
+      "isJoint": false,
+      "assignments": {
+        "service1": {
+          "projector": 1,
+          "sound": 10
+        },
+        "service2": {
+          "projector": 9,
+          "sound": 4
+        }
+      }
+    },
+    {
+      "id": 1763097336428.659,
+      "date": "2025-11-16",
+      "isJoint": false,
+      "assignments": {
+        "service1": {
+          "projector": 2,
+          "sound": 3
+        },
+        "service2": {
+          "projector": 6,
+          "sound": 12
+        }
+      }
+    },
+    {
+      "id": 1763097336428.312,
+      "date": "2025-11-23",
+      "isJoint": false,
+      "assignments": {
+        "service1": {
+          "projector": 11,
+          "sound": 3
+        },
+        "service2": {
+          "projector": 1,
+          "sound": 12
+        }
+      }
+    },
+    {
+      "id": 1763097336428.4836,
+      "date": "2025-11-30",
+      "isJoint": false,
+      "assignments": {
+        "service1": {
+          "projector": 11,
+          "sound": 3
+        },
+        "service2": {
+          "projector": 10,
+          "sound": 12
+        }
+      }
+    },
+    {
+      "id": 1763097336428.3994,
+      "date": "2025-12-07",
+      "isJoint": true,
+      "assignments": {
+        "service1": {
+          "projector": 2,
+          "sound": 13
+        },
+        "service2": {
+          "projector": null,
+          "sound": null
+        }
+      }
+    },
+    {
+      "id": 1763097336428.5107,
+      "date": "2025-12-14",
+      "isJoint": true,
+      "assignments": {
+        "service1": {
+          "projector": 11,
+          "sound": 13
+        },
+        "service2": {
+          "projector": null,
+          "sound": null
+        }
+      }
+    },
+    {
+      "id": 1763097336428.4424,
+      "date": "2025-12-21",
+      "isJoint": true,
+      "assignments": {
+        "service1": {
+          "projector": 5,
+          "sound": 4
+        },
+        "service2": {
+          "projector": null,
+          "sound": null
+        }
+      }
+    },
+    {
+      "id": 1763097336428.1316,
+      "date": "2025-12-28",
+      "isJoint": true,
+      "assignments": {
+        "service1": {
+          "projector": 1,
+          "sound": 14
+        },
+        "service2": {
+          "projector": null,
+          "sound": null
+        }
+      }
+    }
+  ]
+}
