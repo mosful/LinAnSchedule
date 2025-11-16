@@ -5,7 +5,7 @@ const axios = require('axios');
 const { Firestore } = require('@google-cloud/firestore');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // --- Firestore 初始化 ---
 const db = new Firestore({ databaseId: 'linanschedule' });
@@ -184,6 +184,6 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`後端伺服器正在監聽 http://localhost:${port}`);
 });
