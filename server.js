@@ -14,7 +14,7 @@ const peopleCollection = db.collection('people');
 const schedulesCollection = db.collection('schedules');
 
 // ！！！請將您的 Channel Access Token 填寫在這裡！！！
-const CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN_HERE';
+const CHANNEL_ACCESS_TOKEN = '/5fu0x7LgmBf8WS08Mh0Jw61CrobjSccLADh35poNDY+6upzvnwh9iuRHnoiVfFvF+LHFrWR2Y83lsdSUQOTrLpLjT6P9cVC/8qvJI7Zqy9uv8vFyfRl71cmODFzTtktgoRHLvKdrdF4MFdpTwYQEwdB04t89/1O/w1cDnyilFU=';
 const LINE_API_URL = 'https://api.line.me/v2/bot/message/push';
 
 app.use(cors());
