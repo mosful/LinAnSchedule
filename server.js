@@ -3,9 +3,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
 const { Firestore } = require('@google-cloud/firestore');
+const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 // --- Firestore 初始化 ---
 const db = new Firestore({ databaseId: 'linanschedule' });
@@ -18,6 +19,14 @@ const LINE_API_URL = 'https://api.line.me/v2/bot/message/push';
 
 app.use(cors());
 app.use(bodyParser.json());
+
+// --- 新增：靜態檔案服務 (所有檔案放在 public/ 資料夾) ---
+app.use(express.static(path.join(__dirname, 'public')));
+
+// --- 新增：處理根路徑 (/) 的 GET 請求 ---
+app.get('/', (req, res) => { 
+  res.sendFile(path.join(__dirname, 'public', 'index.html')); 
+}); 
 
 // --- API 端點 ---
 
