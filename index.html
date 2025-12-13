@@ -250,7 +250,27 @@
         ));
       };
 
+      // 計算某人的最後被分配日期（用於輪流分配）
+      const getLastAssignmentDate = (personId) => {
+        const dateStr = personId ? String(personId) : '';
+        let latestDate = null;
+        for (const schedule of schedules) {
+          if (
+            schedule.assignments?.service1?.projector === dateStr ||
+            schedule.assignments?.service1?.sound === dateStr ||
+            schedule.assignments?.service2?.projector === dateStr ||
+            schedule.assignments?.service2?.sound === dateStr
+          ) {
+            if (!latestDate || new Date(schedule.date) > new Date(latestDate)) {
+              latestDate = schedule.date;
+            }
+          }
+        }
+        return latestDate ? new Date(latestDate) : new Date('1900-01-01');
+      };
+
       // service: 'service1' or 'service2' (optional)
+      // 輪流分配：優先選擇最久沒被分配的人
       const getAvailablePerson = (role, date, excludeIds, service = null) => {
         const excludeSet = new Set((excludeIds || []).map(id => String(id)));
         const available = people.filter(p => {
@@ -268,7 +288,15 @@
           return true;
         });
         if (available.length === 0) return null;
-        return available[Math.floor(Math.random() * available.length)];
+        
+        // 輪流選擇：按最後分配日期排序，優先選擇最久沒被分配的人
+        available.sort((a, b) => {
+          const dateA = getLastAssignmentDate(a.id);
+          const dateB = getLastAssignmentDate(b.id);
+          return dateA - dateB;  // 早的日期排在前面
+        });
+        
+        return available[0];  // 選擇最久沒被分配的人
       };
 
       const autoAssign = async () => {
@@ -277,37 +305,8 @@
           return;
         }
         const updatedSchedules = schedules.map(schedule => {
-          // special pairing: 陳俊亨 (音控) and 郭嘉玲 (投影) must BOTH be on first service on SAME day
-          const chen = people.find(p => p.name === '陳俊亨');
-          const guo = people.find(p => p.name === '郭嘉玲');
-          const chenId = chen && String(chen.id);
-          const guoId = guo && String(guo.id);
-
-          const isPersonAvailableForRole = (person, role, date, excludeIds) => {
-            if (!person) return false;
-            if (!person.roles.includes(role)) return false;
-            if (person.excludeDates && person.excludeDates.includes(date)) return false;
-            if ((excludeIds || []).map(id => String(id)).includes(String(person.id))) return false;
-            return true;
-          };
-
           if (schedule.isJoint) {
-            // JOINT service: only service1, try to assign the special pair BOTH to service1
-            const chenAvailable = chen && isPersonAvailableForRole(chen, '音控手', schedule.date, []);
-            const guoAvailable = guo && isPersonAvailableForRole(guo, '投影手', schedule.date, []);
-            
-            if (chenAvailable && guoAvailable) {
-              // Both available: must pair them together on service1
-              return {
-                ...schedule,
-                assignments: {
-                  service1: { projector: guoId, sound: chenId },
-                  service2: { projector: null, sound: null }
-                }
-              };
-            }
-            
-            // At least one of the pair is not available, do normal assignment
+            // JOINT service: only service1, regular round-robin assignment
             const projector = getAvailablePerson('投影手', schedule.date, [], 'service1');
             const sound = getAvailablePerson('音控手', schedule.date, [projector?.id], 'service1');
             return {
@@ -318,24 +317,7 @@
               }
             };
           } else {
-            // NON-JOINT: two services, always try to pair them on service1 if BOTH available
-            const chenAvailable = chen && isPersonAvailableForRole(chen, '音控手', schedule.date, []);
-            const guoAvailable = guo && isPersonAvailableForRole(guo, '投影手', schedule.date, []);
-            
-            if (chenAvailable && guoAvailable) {
-              // Both available: pair on service1, then assign service2 independently
-              const proj2 = getAvailablePerson('投影手', schedule.date, [guoId, chenId], 'service2');
-              const sound2 = getAvailablePerson('音控手', schedule.date, [guoId, chenId, proj2?.id], 'service2');
-              return {
-                ...schedule,
-                assignments: {
-                  service1: { projector: guoId, sound: chenId },
-                  service2: { projector: proj2?.id || null, sound: sound2?.id || null }
-                }
-              };
-            }
-
-            // Pairing not possible: normal independent assignment for both services
+            // NON-JOINT: two services, independent round-robin for each service
             const proj1 = getAvailablePerson('投影手', schedule.date, [], 'service1');
             const sound1 = getAvailablePerson('音控手', schedule.date, [proj1?.id], 'service1');
             const proj2 = getAvailablePerson('投影手', schedule.date, [proj1?.id, sound1?.id], 'service2');
