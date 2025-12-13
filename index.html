@@ -24,6 +24,8 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     const API_URL = '/api';
+    // 配對冷卻週數 N（不連續 N 週同組）
+    const PAIR_COOLDOWN_WEEKS = 3;
 
     const ChurchScheduleSystem = () => {
       const [people, setPeople] = useState([]);
@@ -308,6 +310,22 @@
           setAlertMessage('請先新增排班日期');
           return;
         }
+        // helper: check if Chen+Guo paired in the last N schedules before given date
+        const wasPairedInLastN = (date, n) => {
+          if (!chenId || !guoId) return false;
+          const sorted = schedules.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+          // find index of current date position
+          let idx = sorted.findIndex(s => s.date === date);
+          if (idx === -1) {
+            // date might not be in existing schedules (but usually is); find insertion pos
+            idx = sorted.findIndex(s => new Date(s.date) > new Date(date));
+            if (idx === -1) idx = sorted.length;
+          }
+          const start = Math.max(0, idx - n);
+          const recent = sorted.slice(start, idx);
+          return recent.some(s => s.assignments?.service1?.projector === guoId && s.assignments?.service1?.sound === chenId);
+        };
+
         const updatedSchedules = schedules.map(schedule => {
           // Special pairing: 陳俊亨 (音控) and 郭嘉玲 (投影) must BOTH be on first service on SAME day
           const chen = people.find(p => p.name === '陳俊亨');
@@ -328,9 +346,10 @@
             // JOINT service: check if both Chen and Guo are available for pairing
             const chenAvailable = chen && isPersonAvailableForRole(chen, '音控手', schedule.date, []);
             const guoAvailable = guo && isPersonAvailableForRole(guo, '投影手', schedule.date, []);
-            
-            if (chenAvailable && guoAvailable) {
-              // Both available: pair them together on service1
+            // only force pair if they haven't been paired within cooldown window
+            const pairedRecently = wasPairedInLastN(schedule.date, PAIR_COOLDOWN_WEEKS);
+            if (chenAvailable && guoAvailable && !pairedRecently) {
+              // Both available and not paired recently: pair them together on service1
               return {
                 ...schedule,
                 assignments: {
@@ -340,7 +359,7 @@
               };
             }
             
-            // Pairing not possible: use round-robin assignment for both roles
+            // Pairing not possible or blocked by cooldown: use round-robin assignment for both roles
             const projector = getAvailablePerson('投影手', schedule.date, [], 'service1');
             const sound = getAvailablePerson('音控手', schedule.date, [projector?.id], 'service1');
             return {
@@ -351,7 +370,24 @@
               }
             };
           } else {
-            // NON-JOINT: Use round-robin for both services (do NOT force Chen+Guo pairing here)
+            // NON-JOINT: attempt Chen+Guo forced pairing (on service1) if both available and not paired recently
+            const chenAvailable = chen && isPersonAvailableForRole(chen, '音控手', schedule.date, []);
+            const guoAvailable = guo && isPersonAvailableForRole(guo, '投影手', schedule.date, []);
+            const pairedRecentlyNonJoint = wasPairedInLastN(schedule.date, PAIR_COOLDOWN_WEEKS);
+            if (chenAvailable && guoAvailable && !pairedRecentlyNonJoint) {
+              // Pair them on service1, then fill service2 via round-robin excluding the pair
+              const proj2 = getAvailablePerson('投影手', schedule.date, [guoId, chenId], 'service2');
+              const sound2 = getAvailablePerson('音控手', schedule.date, [guoId, chenId, proj2?.id], 'service2');
+              return {
+                ...schedule,
+                assignments: {
+                  service1: { projector: guoId, sound: chenId },
+                  service2: { projector: proj2?.id || null, sound: sound2?.id || null }
+                }
+              };
+            }
+
+            // Otherwise: round-robin for both services
             const proj1 = getAvailablePerson('投影手', schedule.date, [], 'service1');
             const sound1 = getAvailablePerson('音控手', schedule.date, [proj1?.id], 'service1');
             const proj2 = getAvailablePerson('投影手', schedule.date, [proj1?.id, sound1?.id], 'service2');
