@@ -200,24 +200,31 @@
         }
         const start = new Date(dateRange.startDate);
         const end = new Date(dateRange.endDate);
-        const dates = [];
+        const datesSet = new Set();
+
+        // 1. 自動加入範圍內的每週日
+        let current = new Date(start);
+        while (current <= end) {
+          if (current.getDay() === 0) { // Sunday
+            datesSet.add(current.toISOString().split('T')[0]);
+          }
+          current.setDate(current.getDate() + 1);
+        }
+
+        // 2. 加入自訂日期
         if (dateRange.customDates) {
           const customDatesArray = dateRange.customDates.split(',').map(d => d.trim());
           customDatesArray.forEach(dateStr => {
             const date = new Date(dateStr);
-            if (date >= start && date <= end) {
-              dates.push(date.toISOString().split('T')[0]);
+            // 檢查日期是否有效且在範圍內
+            if (!isNaN(date.getTime()) && date >= start && date <= end) {
+              datesSet.add(date.toISOString().split('T')[0]);
             }
           });
-        } else {
-          let current = new Date(start);
-          while (current <= end) {
-            if (current.getDay() === 0) { // Sunday
-              dates.push(current.toISOString().split('T')[0]);
-            }
-            current.setDate(current.getDate() + 1);
-          }
         }
+
+        // 轉換為陣列並排序
+        const dates = Array.from(datesSet).sort();
         setPreviewDates(dates.map(date => ({ date, isJoint: false })));
       };
 
@@ -1072,7 +1079,7 @@
                           placeholder="2024-12-25,2025-01-01"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         />
-                        <p className="text-xs text-gray-500 mt-1">留空則預設為每週日</p>
+                        <p className="text-xs text-gray-500 mt-1">系統會自動加入每週日。如需增加非週日之特殊日期，請在此輸入。</p>
                       </div>
                       <div className="flex gap-2">
                         <button
