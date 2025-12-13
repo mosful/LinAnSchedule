@@ -408,7 +408,8 @@
       const updateAssignment = (scheduleId, service, role, personId) => {
         const schedule = schedules.find(s => s.id === scheduleId);
         const newAssignments = { ...schedule.assignments };
-        newAssignments[service][role] = personId === 'null' ? null : parseInt(personId);
+        // Do not coerce to number; keep IDs as strings (Firestore uses string IDs).
+        newAssignments[service][role] = personId === 'null' ? null : personId;
         updateScheduleProperty(scheduleId, { assignments: newAssignments });
       };
 
@@ -1072,7 +1073,7 @@
                                       <div>
                                         <div className="text-xs text-gray-600">投影</div>
                                         <select
-                                          value={schedule.assignments.service1.projector || 'null'}
+                                          value={String(schedule.assignments.service1.projector || 'null')}
                                           onChange={(e) => updateAssignment(schedule.id, 'service1', 'projector', e.target.value)}
                                           className="w-full text-xs p-1 border border-gray-300 rounded"
                                         >
@@ -1086,7 +1087,7 @@
                                       <div>
                                         <div className="text-xs text-gray-600">音控</div>
                                         <select
-                                          value={schedule.assignments.service1.sound || 'null'}
+                                          value={String(schedule.assignments.service1.sound || 'null')}
                                           onChange={(e) => updateAssignment(schedule.id, 'service1', 'sound', e.target.value)}
                                           className="w-full text-xs p-1 border border-gray-300 rounded"
                                         >
@@ -1122,7 +1123,7 @@
                                           <div>
                                             <div className="text-xs text-gray-600">投影</div>
                                             <select
-                                              value={schedule.assignments.service2.projector || 'null'}
+                                              value={String(schedule.assignments.service2.projector || 'null')}
                                               onChange={(e) => updateAssignment(schedule.id, 'service2', 'projector', e.target.value)}
                                               className="w-full text-xs p-1 border border-gray-300 rounded"
                                             >
@@ -1136,7 +1137,7 @@
                                           <div>
                                             <div className="text-xs text-gray-600">音控</div>
                                             <select
-                                              value={schedule.assignments.service2.sound || 'null'}
+                                              value={String(schedule.assignments.service2.sound || 'null')}
                                               onChange={(e) => updateAssignment(schedule.id, 'service2', 'sound', e.target.value)}
                                               className="w-full text-xs p-1 border border-gray-300 rounded"
                                             >
