@@ -277,7 +277,7 @@
           return;
         }
         const updatedSchedules = schedules.map(schedule => {
-          // special pairing: 陳俊亨 (音控) and 郭嘉玲 (投影) must both be on first service if scheduled
+          // special pairing: 陳俊亨 (音控) and 郭嘉玲 (投影) must BOTH be on first service on SAME day
           const chen = people.find(p => p.name === '陳俊亨');
           const guo = people.find(p => p.name === '郭嘉玲');
           const chenId = chen && String(chen.id);
@@ -288,17 +288,16 @@
             if (!person.roles.includes(role)) return false;
             if (person.excludeDates && person.excludeDates.includes(date)) return false;
             if ((excludeIds || []).map(id => String(id)).includes(String(person.id))) return false;
-            // respect service-specific roles handled elsewhere via getAvailablePerson when used
             return true;
           };
 
           if (schedule.isJoint) {
-            // try to assign the special pair to service1 if both are available for their complementary roles
-            if (
-              chen && guo &&
-              isPersonAvailableForRole(chen, '音控手', schedule.date, []) &&
-              isPersonAvailableForRole(guo, '投影手', schedule.date, [])
-            ) {
+            // JOINT service: only service1, try to assign the special pair BOTH to service1
+            const chenAvailable = chen && isPersonAvailableForRole(chen, '音控手', schedule.date, []);
+            const guoAvailable = guo && isPersonAvailableForRole(guo, '投影手', schedule.date, []);
+            
+            if (chenAvailable && guoAvailable) {
+              // Both available: must pair them together on service1
               return {
                 ...schedule,
                 assignments: {
@@ -307,8 +306,8 @@
                 }
               };
             }
-
-            // fallback to normal assignment
+            
+            // At least one of the pair is not available, do normal assignment
             const projector = getAvailablePerson('投影手', schedule.date, [], 'service1');
             const sound = getAvailablePerson('音控手', schedule.date, [projector?.id], 'service1');
             return {
@@ -319,13 +318,12 @@
               }
             };
           } else {
-            // non-joint: first try special pairing for service1
-            if (
-              chen && guo &&
-              isPersonAvailableForRole(chen, '音控手', schedule.date, []) &&
-              isPersonAvailableForRole(guo, '投影手', schedule.date, [])
-            ) {
-              // ensure pairing for service1, then pick service2 independently
+            // NON-JOINT: two services, always try to pair them on service1 if BOTH available
+            const chenAvailable = chen && isPersonAvailableForRole(chen, '音控手', schedule.date, []);
+            const guoAvailable = guo && isPersonAvailableForRole(guo, '投影手', schedule.date, []);
+            
+            if (chenAvailable && guoAvailable) {
+              // Both available: pair on service1, then assign service2 independently
               const proj2 = getAvailablePerson('投影手', schedule.date, [guoId, chenId], 'service2');
               const sound2 = getAvailablePerson('音控手', schedule.date, [guoId, chenId, proj2?.id], 'service2');
               return {
@@ -337,7 +335,7 @@
               };
             }
 
-            // fallback to normal assignment flow
+            // Pairing not possible: normal independent assignment for both services
             const proj1 = getAvailablePerson('投影手', schedule.date, [], 'service1');
             const sound1 = getAvailablePerson('音控手', schedule.date, [proj1?.id], 'service1');
             const proj2 = getAvailablePerson('投影手', schedule.date, [proj1?.id, sound1?.id], 'service2');
