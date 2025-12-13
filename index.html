@@ -124,9 +124,9 @@
       const startEditPerson = (person) => {
         setEditingPerson(person.id);
         setEditData({
-          name: person.name,
-          roles: [...person.roles],
-          excludeDates: [...person.excludeDates],
+          name: person.name || '',
+          roles: [...(person.roles || [])],
+          excludeDates: [...(person.excludeDates || [])],
           lineId: person.lineId || '',
           enableLineNotify: person.enableLineNotify || false,
           isInactive: person.isInactive || false
@@ -134,6 +134,7 @@
       };
 
       const saveEditPerson = async () => {
+        if (!editData) return;
         if (!editData.name.trim() || editData.roles.length === 0) {
           setAlertMessage('姓名不能為空且至少需選擇一個角色');
           return;
@@ -735,7 +736,7 @@
                           {people.map(person => (
                             <tr key={person.id} className="hover:bg-gray-50">
                               <td className="px-4 py-3 text-sm text-gray-800">
-                                {editingPerson === person.id ? (
+                                {editingPerson === person.id && editData ? (
                                   <input
                                     type="text"
                                     value={editData.name}
@@ -748,7 +749,7 @@
                                 )}
                               </td>
                               <td className="px-4 py-3">
-                                {editingPerson === person.id ? (
+                                {editingPerson === person.id && editData ? (
                                   <div className="space-y-1">
                                     {roles.map(role => (
                                       <label key={role} className="flex items-center gap-2 cursor-pointer text-xs">
@@ -764,7 +765,7 @@
                                   </div>
                                 ) : (
                                   <div className="flex flex-wrap gap-1">
-                                    {person.roles.map(role => (
+                                    {(person.roles || []).map(role => (
                                       <span key={role} className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs">
                                         {role}
                                       </span>
@@ -773,7 +774,7 @@
                                 )}
                               </td>
                               <td className="px-4 py-3">
-                                {editingPerson === person.id ? (
+                                {editingPerson === person.id && editData ? (
                                   <div className="space-y-2">
                                     <input
                                       type="text"
@@ -808,7 +809,7 @@
                                 )}
                               </td>
                               <td className="px-4 py-3">
-                                {editingPerson === person.id ? (
+                                {editingPerson === person.id && editData ? (
                                   <div>
                                     <input
                                       type="date"
@@ -828,50 +829,52 @@
                                         </span>
                                       ))}
                                     </div>
-                                    <div className="mt-3 pt-3 border-t">
-                                      <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={editData.isInactive}
-                                          onChange={(e) => setEditData({ ...editData, isInactive: e.target.checked })}
-                                          className="w-3 h-3 text-red-600 rounded"
-                                        />
-                                        <span className="text-xs text-gray-700">失效</span>
-                                      </label>
-                                    </div>
                                   </div>
                                 ) : (
                                   <div className="flex flex-wrap gap-1 items-center">
-                                    {person.excludeDates.map((date, idx) => (
+                                    {(person.excludeDates || []).map((date, idx) => (
                                       <span key={idx} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">
                                         {date}
                                       </span>
                                     ))}
-                                    {person.isInactive && (
-                                      <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold">失效</span>
-                                    )}
                                   </div>
                                 )}
                               </td>
                               <td className="px-4 py-3 text-center">
-                                <div className="flex items-center justify-center gap-2">
-                                  {editingPerson === person.id ? (
+                                <div className="flex flex-col items-center justify-center gap-2">
+                                  {editingPerson === person.id && editData ? (
                                     <>
-                                      <button onClick={saveEditPerson} className="text-green-600 hover:text-green-800" title="儲存">
-                                        <i data-lucide="save" className="w-4 h-4"></i>
-                                      </button>
-                                      <button onClick={cancelEditPerson} className="text-gray-600 hover:text-gray-800" title="取消">
-                                        <i data-lucide="x" className="w-4 h-4"></i>
-                                      </button>
+                                      <label className="flex items-center gap-1 cursor-pointer mb-1">
+                                        <input
+                                          type="checkbox"
+                                          checked={editData.isInactive || false}
+                                          onChange={(e) => setEditData({ ...editData, isInactive: e.target.checked })}
+                                          className="w-3 h-3 text-red-600 rounded"
+                                        />
+                                        <span className="text-xs text-red-600 font-bold">失效</span>
+                                      </label>
+                                      <div className="flex gap-2">
+                                        <button onClick={saveEditPerson} className="text-green-600 hover:text-green-800" title="儲存">
+                                          <i data-lucide="save" className="w-5 h-5"></i>
+                                        </button>
+                                        <button onClick={cancelEditPerson} className="text-gray-600 hover:text-gray-800" title="取消">
+                                          <i data-lucide="x" className="w-5 h-5"></i>
+                                        </button>
+                                      </div>
                                     </>
                                   ) : (
                                     <>
-                                      <button onClick={() => startEditPerson(person)} className="text-blue-600 hover:text-blue-800" title="編輯">
-                                        <i data-lucide="edit-3" className="w-4 h-4"></i>
-                                      </button>
-                                      <button onClick={() => setConfirmDelete({ type: 'person', id: person.id })} className="text-red-600 hover:text-red-800" title="刪除">
-                                        <i data-lucide="trash-2" className="w-4 h-4"></i>
-                                      </button>
+                                      {person.isInactive && (
+                                        <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold mb-1">失效</span>
+                                      )}
+                                      <div className="flex gap-2 justify-center">
+                                        <button onClick={() => startEditPerson(person)} className="text-blue-600 hover:text-blue-800" title="編輯">
+                                          <i data-lucide="edit-3" className="w-4 h-4"></i>
+                                        </button>
+                                        <button onClick={() => setConfirmDelete({ type: 'person', id: person.id })} className="text-red-600 hover:text-red-800" title="刪除">
+                                          <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                        </button>
+                                      </div>
                                     </>
                                   )}
                                 </div>
@@ -1199,7 +1202,7 @@
                           <td className="px-4 py-3 text-sm text-gray-800">{person.name}</td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1">
-                              {person.roles.map(role => (
+                              {(person.roles || []).map(role => (
                                 <span key={role} className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs">
                                   {role}
                                 </span>
@@ -1222,7 +1225,7 @@
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1 items-center">
-                              {person.excludeDates.map((date, idx) => (
+                              {(person.excludeDates || []).map((date, idx) => (
                                 <span key={idx} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">
                                   {date}
                                 </span>
