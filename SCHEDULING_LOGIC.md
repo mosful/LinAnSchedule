@@ -12,6 +12,12 @@
 - **第一堂工作人員** (`第一堂工作人員`)：只能在第一堂服事
 - **第二堂工作人員** (`第二堂工作人員`)：只能在第二堂服事
 
+### 1.3 人員狀態管理
+- **失效** (`isInactive`)：人員因長期請假、出國出差等原因暫時無法服事
+  - 失效的人員**不會出現**在自動排班中
+  - 失效的人員**不會出現**在下拉選單中
+  - 可隨時恢復正常狀態
+
 ### 1.3 輪流分配機制 + 強制配對 ✨ (混合版本)
 - **核心原則 1**：陳俊亨和郭嘉玲必須優先配對分配
 - **核心原則 2**：其他角色採用輪流分配，優先分配給最久沒被分配的人
@@ -71,10 +77,11 @@ function getAvailablePerson(role, date, excludeIds, service)
 ```
 
 **必須滿足所有條件：**
-1. ✅ 具有指定角色（例如：`投影手` 或 `音控手`）
-2. ✅ 未被列入該日期的「不可服事日期」
-3. ✅ 不在排除名單 (`excludeIds`) 中
-4. ✅ **Service 限制** （新增）：
+1. ✅ **不是失效狀態** (`isInactive === false`)
+2. ✅ 具有指定角色（例如：`投影手` 或 `音控手`）
+3. ✅ 未被列入該日期的「不可服事日期」
+4. ✅ 不在排除名單 (`excludeIds`) 中
+5. ✅ **Service 限制**：
    - 如果分配到 `service1`，則排除標記為 `第二堂工作人員` 的人
    - 如果分配到 `service2`，則排除標記為 `第一堂工作人員` 的人
 
@@ -244,13 +251,15 @@ excludeDates: ['2025-12-20']  // 這一天無法服事
 ```
 輸入：role, date, excludeIds, service
   ↓
-過濾1: 檢查角色 (role.includes())
+過濾1: 檢查失效狀態 (isInactive === false) 【新增】
   ↓
-過濾2: 檢查排除日期 (excludeDates.includes())
+過濾2: 檢查角色 (role.includes())
   ↓
-過濾3: 檢查排除人員 (excludeIds.includes())
+過濾3: 檢查排除日期 (excludeDates.includes())
   ↓
-過濾4: 檢查服事堂次限制
+過濾4: 檢查排除人員 (excludeIds.includes())
+  ↓
+過濾5: 檢查服事堂次限制
   - service1 → 排除第二堂工作人員
   - service2 → 排除第一堂工作人員
   ↓
@@ -266,24 +275,53 @@ excludeDates: ['2025-12-20']  // 這一天無法服事
 
 ---
 
-## 9. 新增需求或修改指南
+## 9. 人員失效功能（新增 v2.2）
+
+### 9.1 功能說明
+- **目的**：處理人員因長期請假、出國出差等原因暫時無法服事的情況
+- **操作**：在「維護人員」中勾選「失效（長期請假/出國出差）」即可
+
+### 9.2 失效狀態的影響
+
+| 項目 | 影響 |
+|------|------|
+| 自動排班 (`autoAssign`) | ❌ 不會被選中分配 |
+| 下拉選單 (Dropdowns) | ❌ 不會出現在列表中 |
+| 人員列表顯示 | ✅ 會顯示「失效」紅色標籤 |
+| 已往配對 | ✅ 不會被取消，只是未來不會分配 |
+| 恢復操作 | ✅ 取消勾選即可恢復正常 |
+
+### 9.3 實現細節
+- **數據字段**：人員物件新增 `isInactive` 布林值
+- **檢查位置**：
+  1. `getAvailablePerson()` 的第一個篩選條件
+  2. `isPersonAvailableForRole()` 的第一個檢查
+  3. 所有下拉選單的 `.filter(p => !p.isInactive)` 檢查
+
+---
+
+## 10. 新增需求或修改指南
 
 如需修改排班邏輯，請檢查以下位置：
 
 | 功能 | 檔案位置 | 函數 |
 |------|---------|------|
-| 自動排班核心邏輯 | `index.html` | `autoAssign()` (行 293-320) |
-| 輪流分配機制 | `index.html` | `getLastAssignmentDate()` (行 254-268) |
-| 人員篩選 | `index.html` | `getAvailablePerson()` (行 270-296) |
-| Service1 投影手下拉 | `index.html` | 行 ~1135-1147 |
-| Service1 音控手下拉 | `index.html` | 行 ~1150-1162 |
-| Service2 投影手下拉 | `index.html` | 行 ~1185-1197 |
-| Service2 音控手下拉 | `index.html` | 行 ~1200-1212 |
-| 陳+郭配對檢查 | `index.html` | `autoAssign()` 內部 (行 285-330) |
+| 自動排班核心邏輯 | `index.html` | `autoAssign()` |
+| 輪流分配機制 | `index.html` | `getLastAssignmentDate()` |
+| 人員篩選（含失效檢查） | `index.html` | `getAvailablePerson()` |
+| 失效狀態檢查 | `index.html` | `isPersonAvailableForRole()` |
+| Service1 投影手下拉 | `index.html` | 行 ~1200 |
+| Service1 音控手下拉 | `index.html` | 行 ~1215 |
+| Service2 投影手下拉 | `index.html` | 行 ~1260 |
+| Service2 音控手下拉 | `index.html` | 行 ~1280 |
+| 新增人員表單 | `index.html` | 行 ~830 |
+| 編輯人員表單 | `index.html` | 行 ~710 |
+| 陳+郭配對檢查 | `index.html` | `autoAssign()` 內部 |
 
 ---
 
-**最後更新**：2025-12-13
+**最後更新**：2025-12-13 (v2.2 - 新增失效功能)
+````
 **版本**：2.1 - 配對優先 + 輪流分配混合版本
 
 ### 版本歷史
