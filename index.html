@@ -1139,7 +1139,12 @@
                                           className="w-full text-xs p-1 border border-gray-300 rounded"
                                         >
                                           <option value="null">-</option>
-                                          {people.filter(p => p.roles.includes('投影手') && !p.excludeDates.includes(schedule.date)).map(p => (
+                                          {people.filter(p => {
+                                            if (!p.roles.includes('投影手')) return false;
+                                            if (p.excludeDates && p.excludeDates.includes(schedule.date)) return false;
+                                            if (p.roles.includes('第二堂工作人員')) return false;
+                                            return true;
+                                          }).map(p => (
                                             <option key={p.id} value={p.id}>{p.name}</option>
                                           ))}
                                         </select>
@@ -1153,7 +1158,12 @@
                                           className="w-full text-xs p-1 border border-gray-300 rounded"
                                         >
                                           <option value="null">-</option>
-                                          {people.filter(p => p.roles.includes('音控手') && !p.excludeDates.includes(schedule.date)).map(p => (
+                                          {people.filter(p => {
+                                            if (!p.roles.includes('音控手')) return false;
+                                            if (p.excludeDates && p.excludeDates.includes(schedule.date)) return false;
+                                            if (p.roles.includes('第二堂工作人員')) return false;
+                                            return true;
+                                          }).map(p => (
                                             <option key={p.id} value={p.id}>{p.name}</option>
                                           ))}
                                         </select>
@@ -1189,7 +1199,12 @@
                                               className="w-full text-xs p-1 border border-gray-300 rounded"
                                             >
                                               <option value="null">-</option>
-                                              {people.filter(p => p.roles.includes('投影手') && !p.excludeDates.includes(schedule.date)).map(p => (
+                                              {people.filter(p => {
+                                                if (!p.roles.includes('投影手')) return false;
+                                                if (p.excludeDates && p.excludeDates.includes(schedule.date)) return false;
+                                                if (p.roles.includes('第一堂工作人員')) return false;
+                                                return true;
+                                              }).map(p => (
                                                 <option key={p.id} value={p.id}>{p.name}</option>
                                               ))}
                                             </select>
@@ -1203,7 +1218,12 @@
                                               className="w-full text-xs p-1 border border-gray-300 rounded"
                                             >
                                               <option value="null">-</option>
-                                              {people.filter(p => p.roles.includes('音控手') && !p.excludeDates.includes(schedule.date)).map(p => (
+                                              {people.filter(p => {
+                                                if (!p.roles.includes('音控手')) return false;
+                                                if (p.excludeDates && p.excludeDates.includes(schedule.date)) return false;
+                                                if (p.roles.includes('第一堂工作人員')) return false;
+                                                return true;
+                                              }).map(p => (
                                                 <option key={p.id} value={p.id}>{p.name}</option>
                                               ))}
                                             </select>
